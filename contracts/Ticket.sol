@@ -6,41 +6,48 @@ contract Ticket is BurnableToken {
 
 	// mapping (address => uint) ticketRecordBook; I used 'balances' because function burn() in BurnableToken use that mapping
   uint public soldTickets;
-  uint EVENT_MAX_CAP;
+  uint public EVENT_MAX_CAP;
 	uint256 public price;
 	// address where funds are collected
   address public wallet;
 
 	// event Transfer(address indexed _from, address indexed _to, uint256 _qtty); This event already exist in this contract because it is BurnableToken -> StandardToken -> BasicToken -> ERC20Basic 
 
+	event LogTicket(uint maxCap, uint256 _price, address _wallet);
 	//Constructor
 	function Ticket(uint maxCap, uint256 _price, address _wallet) {
-		require(maxCap > 0);
-		require(_price > 0);
-		require(_wallet != address(0));
+		if (maxCap <= 0) 
+			throw;
+		if (_price <= 0)
+			throw;
+		if (_wallet == address(0))
+			throw;
 		
 		EVENT_MAX_CAP = maxCap;
 		price = _price;
 		wallet = _wallet;
+		LogTicket(maxCap, _price, _wallet);
 	}
 
   event LogPurchase(address indexed _from, address indexed beneficiary, uint256 _qtty);
   
 	function buyTickets(address beneficiary, uint256 amount) public payable returns (bool sufficient) {
-		require(beneficiary != address(0));
+		if (beneficiary == address(0))
+		  return false;
 		// TODO isn't it a race condition?
-    require(soldTickets + amount <= EVENT_MAX_CAP); 
+    if (soldTickets + amount > EVENT_MAX_CAP)
+			return false; 
 		uint256 weiAmount = msg.value;
 		uint256 weiTotal = amount.mul(price);
-		require(weiAmount == weiTotal);
+		if (weiAmount != weiTotal)
+			return false;
 
 		balances[beneficiary] = balances[beneficiary].add(amount);
 		soldTickets += amount;
 
     LogPurchase(msg.sender, beneficiary, amount);
 
-		if (!forwardFunds())
-			revert();
+		forwardFunds();
 		
 		return true;
   }
