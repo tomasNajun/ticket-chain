@@ -9,14 +9,12 @@ contract('SimpleStorage', function (accounts) {
         const creator = accounts[0];
         const contract = await Ticket.new(maxCap, price, wallet);
 
-        // const contractMaxCap = await contract.EVENT_MAX_CAP(); throws Error: Invalid number of arguments to Solidity function
+        const contractMaxCap = await contract.EVENT_MAX_CAP(); 
         const contractPrice = await contract.price();
-        // const contractWallet = await contract.wallet(); throws Error: Invalid number of arguments to Solidity function
-
-        // console.log(`contractWallet: ${contractWallet}`);
+        const contractWallet = await contract.wallet(); 
         
-        // assert.equal(contractMaxCap, maxCap, `The maxCap val wasn't ${maxCap}`);
+        assert.equal(contractMaxCap, maxCap, `The maxCap val wasn't ${maxCap}`);
         assert.equal(contractPrice, price, `The price val wasn't ${price}`);
-        // assert.equal(contractWallet, wallet, `The wallet address val wasn't ${wallet}`);
+        assert.equal(contractWallet, wallet, `The wallet address val wasn't ${wallet}`);
       });
 });
