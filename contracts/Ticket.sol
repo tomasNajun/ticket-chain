@@ -14,14 +14,16 @@ contract Ticket is BurnableToken {
 	// event Transfer(address indexed _from, address indexed _to, uint256 _qtty); This event already exist in this contract because it is BurnableToken -> StandardToken -> BasicToken -> ERC20Basic 
 
 	event LogTicket(uint maxCap, uint256 _price, address _wallet);
+	event LogError(uint description);
 	//Constructor
 	function Ticket(uint maxCap, uint256 _price, address _wallet) {
-		if (maxCap <= 0) 
-			throw;
-		if (_price <= 0)
-			throw;
-		if (_wallet == address(0))
-			throw;
+		LogError(1);
+		require(maxCap > 0);
+		LogError(2);
+		require(_price > 0);
+		LogError(3);
+		require(_wallet != address(0));
+		LogError(4);
 		
 		EVENT_MAX_CAP = maxCap;
 		price = _price;
