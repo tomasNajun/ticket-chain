@@ -58,6 +58,10 @@ contract Ticket is BurnableToken {
 		return true;
   }
 
+	function getBalances(address buyer) returns (uint) {
+				return balances[buyer];
+	}
+
 	// This method exixts in BasicToken
 	// function sendTicket(address receiver, uint amount) public returns(bool sufficient) {
 	// 	if (ticketRecordBook[msg.sender] < amount)
