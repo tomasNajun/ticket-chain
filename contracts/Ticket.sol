@@ -37,7 +37,6 @@ contract Ticket is BurnableToken {
 		Logger(1);
 		if (beneficiary == address(0))
 		  return false;
-		// TODO isn't it a race condition?
 		Logger(2);
     if (soldTickets + amount > EVENT_MAX_CAP)
 			return false; 

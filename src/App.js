@@ -32,7 +32,7 @@ class CreateEvent extends Component {
 
   async handleSubmit(event) {
     // alert('A name was submitted: ' + this.state.value);
-    const {maxCap, price, address} = this.state;
+    const { maxCap, price, address } = this.state;
     const contract = await this.instantiateTicketContract(this.props.web3, address, maxCap, price, address);
     event.preventDefault();
   }
@@ -46,23 +46,90 @@ class CreateEvent extends Component {
     return result;
   }
 
-  render () {
+  render() {
     return (
       <div>
         <h3>Create Event</h3>
         <form>
           <label htmlFor="maxCap">Max Cap</label>
-          <input id="maxCap" name="maxCap" type="text" value={this.state.maxCap} onChange={this.handleInputChange}/>
+          <input id="maxCap" name="maxCap" type="text" value={this.state.maxCap} onChange={this.handleInputChange} />
           <label htmlFor="price">Price</label>
-          <input id="price" name="price" type="number" value={this.state.price} onChange={this.handleInputChange}/>
+          <input id="price" name="price" type="number" value={this.state.price} onChange={this.handleInputChange} />
           <label htmlFor="address">Fund wallet address</label>
-          <input id="address" name="address" type="text" value={this.state.address} onChange={this.handleInputChange}/>
+          <input id="address" name="address" type="text" value={this.state.address} onChange={this.handleInputChange} />
           <input type="button" value="Crear" onClick={this.handleSubmit} />
         </form>
-      </div> 
+      </div>
     );
   }
-  
+
+}
+
+class BuyTicket extends Component {
+  constructor(props) {
+    super(props);
+    const web3 = props.web3;
+
+    this.state = {
+      quantity: 0,
+      unitPrice: 0,
+      beneficiary: "0x0"
+    };
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleInputChange(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
+
+    this.setState({
+      [name]: value
+    });
+  }
+
+  handleSubmit(event) {
+    // alert('A name was submitted: ' + this.state.value);
+    const { quantity, beneficiary } = this.state;
+    console.log(`Qty: ${quantity}, Beneficiary: ${beneficiary}`);
+    this.buyTicket(this.props.web3, quantity, beneficiary)
+      .then(function (result) {
+        console.log("bought!!");
+        return result;
+      }).catch(function (err) {
+        console.log(err.message);
+      });
+    
+  }
+
+  async buyTicket(web3, quantity, beneficiary) {
+    const contract = require('truffle-contract');
+    const ticket = contract(Ticket);
+    ticket.setProvider(web3.currentProvider);
+    const ticketInstance = await ticket.deployed();
+    console.log(`Contract at: ${ticketInstance.address}`);
+    const value = 1000 * quantity;
+    console.log(`Value to pay: ${value}`);
+    console.log(`Sender: ${this.props.sender}`);
+    return ticketInstance.buyTickets(beneficiary, quantity, { from: this.props.sender, value: value });
+  }
+
+  render() {
+    return (
+      <div>
+        <h3>Buy tickets</h3>
+        <form>
+          <label htmlFor="quantity">Quantity</label>
+          <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
+          <label htmlFor="beneficiary">Beneficiary</label>
+          <input id="beneficiary" name="beneficiary" type="text" value={this.state.price} onChange={this.handleInputChange} />
+          <input type="button" value="Crear" onClick={this.handleSubmit} />
+        </form>
+      </div>
+    );
+  }
 }
 
 class App extends Component {
@@ -81,9 +148,9 @@ class App extends Component {
     // Get network provider and web3 instance.
     // See utils/getWeb3 for more info.
     const getSenderAccount = (web3) => {
-      const promise = new Promise( (resolve, reject) => {
-        web3.eth.getAccounts( (e, accounts) => {
-          if(e) {
+      const promise = new Promise((resolve, reject) => {
+        web3.eth.getAccounts((e, accounts) => {
+          if (e) {
             console.log('Reject');
             reject(e);
           }
@@ -105,9 +172,9 @@ class App extends Component {
       console.log(sender)
 
       // const contract = await this.instantiateTicketContract(web3, sender, 10, 1000, sender);
-      
+
       // console.log(`Contract address: ${contract.account}`)
-      
+
       const self = this;
       const updateLogs = (error, logs) => {
         self.setState({
@@ -141,12 +208,12 @@ class App extends Component {
   }
 
   render() {
-    const {web3} = this.state;
+    const { web3, sender } = this.state;
 
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
-            <a href="#" className="pure-menu-heading pure-menu-link">Truffle Box</a>
+          <a href="#" className="pure-menu-heading pure-menu-link">Truffle Box</a>
         </nav>
 
         <main className="container">
@@ -154,7 +221,8 @@ class App extends Component {
             <div className="pure-u-1-1">
               <h1>TicketChain</h1>
               <p>Sell your event's tickets on the blockchain</p>
-              <CreateEvent web3={web3}/>
+              <CreateEvent web3={web3} />
+              <BuyTicket web3={web3} sender={sender} />
             </div>
           </div>
         </main>
