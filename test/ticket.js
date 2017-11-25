@@ -1,32 +1,32 @@
 let Ticket = artifacts.require("./Ticket.sol");
 
-contract('SimpleStorage', function (accounts) {
-
+contract('Ticket', function (accounts) {
     const maxCap = 10;
     const price = 100; //wei
-    const wallet = accounts[1];
+    const wallet = accounts[0];
+    const beneficiary = accounts[1];
     let contract;
 
-    before( async function() {
-        // runs before all tests in this block
+    before(async () => {
         contract = await Ticket.new(maxCap, price, wallet);
-    });
+    })
 
-
-    it(`should initialize contract maxCap, price and wallet`, async function () {
+    it(`should initialize contract maxCap, price and wallet`, async () => {
         const contractMaxCap = await contract.EVENT_MAX_CAP(); 
         const contractPrice = await contract.price();
         const contractWallet = await contract.wallet(); 
-        
         assert.equal(contractMaxCap, maxCap, `The maxCap val wasn't ${maxCap}`);
         assert.equal(contractPrice, price, `The price val wasn't ${price}`);
         assert.equal(contractWallet, wallet, `The wallet address val wasn't ${wallet}`);
-    });
+      });
 
-    it('Test buy ticket', async function () {
-        const beneficiary = accounts[1];
-        const amount = 1;
+      it(`Address Balance should change after ticket purchase`, async () => {
+        const amount = 2;
+        const initialBalance = await contract.balanceOf.call(beneficiary);
+        await contract.buyTickets(beneficiary, amount, {from: beneficiary, value: amount * price});
+        const newBalance = await contract.balanceOf.call(beneficiary);
+        assert.notEqual(initialBalance.toNumber(), newBalance.toNumber(), 'Balances are different');
+        assert.equal(newBalance.toNumber(), amount, 'New ticket balance is the requested amount');
+      });
 
-        contract.buyTickets(beneficiary, amount)
-    });
 });

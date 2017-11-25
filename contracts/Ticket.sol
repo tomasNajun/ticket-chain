@@ -14,16 +14,16 @@ contract Ticket is BurnableToken {
 	// event Transfer(address indexed _from, address indexed _to, uint256 _qtty); This event already exist in this contract because it is BurnableToken -> StandardToken -> BasicToken -> ERC20Basic 
 
 	event LogTicket(uint maxCap, uint256 _price, address _wallet);
-	event LogError(uint description);
+	event Logger(uint description);
 	//Constructor
 	function Ticket(uint maxCap, uint256 _price, address _wallet) {
-		LogError(1);
+		Logger(1);
 		require(maxCap > 0);
-		LogError(2);
+		Logger(2);
 		require(_price > 0);
-		LogError(3);
+		Logger(3);
 		require(_wallet != address(0));
-		LogError(4);
+		Logger(4);
 		
 		EVENT_MAX_CAP = maxCap;
 		price = _price;
@@ -34,15 +34,20 @@ contract Ticket is BurnableToken {
   event LogPurchase(address indexed _from, address indexed beneficiary, uint256 _qtty);
   
 	function buyTickets(address beneficiary, uint256 amount) public payable returns (bool sufficient) {
+		Logger(1);
 		if (beneficiary == address(0))
 		  return false;
 		// TODO isn't it a race condition?
+		Logger(2);
     if (soldTickets + amount > EVENT_MAX_CAP)
 			return false; 
+		Logger(3);
 		uint256 weiAmount = msg.value;
 		uint256 weiTotal = amount.mul(price);
+		Logger(4);
 		if (weiAmount != weiTotal)
 			return false;
+		Logger(5);
 
 		balances[beneficiary] = balances[beneficiary].add(amount);
 		soldTickets += amount;
