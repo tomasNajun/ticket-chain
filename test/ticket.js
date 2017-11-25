@@ -23,10 +23,24 @@ contract('Ticket', function (accounts) {
       it(`Address Balance should change after ticket purchase`, async () => {
         const amount = 2;
         const initialBalance = await contract.balanceOf.call(beneficiary);
-        await contract.buyTickets(beneficiary, amount, {from: beneficiary, value: amount * price});
+        const buyTicketResult = await contract.buyTickets(beneficiary, amount, {from: beneficiary, value: amount * price});
         const newBalance = await contract.balanceOf.call(beneficiary);
-        assert.notEqual(initialBalance.toNumber(), newBalance.toNumber(), 'Balances are different');
-        assert.equal(newBalance.toNumber(), amount, 'New ticket balance is the requested amount');
+        assert.notEqual(initialBalance.toNumber(), newBalance.toNumber(), 'Balances are not different');
+        assert.equal(newBalance.toNumber(), amount, `New ticket balance wasn't ${amount}`);
+
+        const logs = buyTicketResult.logs;
+        const logPurchase = logs[5];
+        assert.lengthOf(logs, 6, "Quantity of events wasn't 1");
+        assert.equal(logPurchase.event, "LogPurchase", "Event found wasn't LogPurchase");
+
+        const logPurchaseArgs = logPurchase.args; 
+        assert.property(logPurchaseArgs, '_from');
+        assert.property(logPurchaseArgs, 'beneficiary');
+        assert.property(logPurchaseArgs, '_qtty');
+
+        assert.equal(logPurchaseArgs._from, beneficiary, `Address sender wasn't ${beneficiary}`);
+        assert.equal(logPurchaseArgs.beneficiary, beneficiary, `Address beneficiary wasn't ${beneficiary}`);
+        assert.equal(logPurchaseArgs._qtty, amount, `Tickets purchased wasn't ${amount}`);
       });
 
 });
