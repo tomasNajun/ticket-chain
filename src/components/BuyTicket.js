@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
-import Ticket from '../../build/contracts/Ticket.json'
 
 class BuyTicket extends Component {
   constructor(props) {
     super(props);
-
+    console.log(this.props.sender);
     this.state = {
       quantity: 0,
       unitPrice: 0,
@@ -25,10 +24,17 @@ class BuyTicket extends Component {
     });
   }
 
+  componentWillReceiveProps() {
+    console.log('estas son mis nuevas props', this.props);
+    this.setState({
+      beneficiary: this.props.sender
+    });
+  }
+
   handleSubmit(event) {
     const { quantity, beneficiary } = this.state;
     console.log(`Qty: ${quantity}, Beneficiary: ${beneficiary}`);
-    this.buyTicket(this.props.web3, quantity, beneficiary)
+    this.buyTicket(this.props.contract, quantity, beneficiary)
       .then(function (result) {
         console.log("bought!!");
         return result;
@@ -38,12 +44,7 @@ class BuyTicket extends Component {
     
   }
 
-  async buyTicket(web3, quantity, beneficiary) {
-    const contract = require('truffle-contract');
-    const ticket = contract(Ticket);
-    ticket.setProvider(web3.currentProvider);
-    const ticketInstance = await ticket.deployed();
-    console.log(`Contract at: ${ticketInstance.address}`);
+  async buyTicket(ticketInstance, quantity, beneficiary) {
     const value = 1000 * quantity;
     console.log(`Value to pay: ${value}`);
     console.log(`Sender: ${this.props.sender}`);
@@ -58,7 +59,7 @@ class BuyTicket extends Component {
           <label htmlFor="quantity">Quantity</label>
           <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
           <label htmlFor="beneficiary">Beneficiary</label>
-          <input id="beneficiary" name="beneficiary" type="text" value={this.state.price} onChange={this.handleInputChange} />
+          <input id="beneficiary" name="beneficiary" type="text" value={this.state.beneficiary} onChange={this.handleInputChange} />
           <input type="button" value="Crear" onClick={this.handleSubmit} />
         </form>
       </div>

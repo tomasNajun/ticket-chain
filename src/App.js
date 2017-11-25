@@ -9,7 +9,6 @@ import './css/open-sans.css'
 import './css/pure-min.css'
 import './App.css'
 
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -20,6 +19,25 @@ class App extends Component {
       logs: [],
       web3: null
     }
+  }
+
+  async getContractData(ticketInstance) {
+    const soldTickets = await ticketInstance.soldTickets();
+    const eventMaxCap = await ticketInstance.EVENT_MAX_CAP();
+    const ticketPrice = await ticketInstance.price();
+    console.log(`soldTickets: ${soldTickets}, eventMaxCap: ${eventMaxCap}, ticketPrice: ${ticketPrice}`);
+    return {
+      soldTickets,
+      eventMaxCap,
+      ticketPrice
+    }
+  }
+
+  async refreshContractData() {
+    const contractData = await this.getContractData(this.state.contract);
+    this.setState({
+      contractData
+    })
   }
 
   componentWillMount() {
@@ -45,30 +63,29 @@ class App extends Component {
       console.log('Start initialize');
 
       const { web3 } = await getWeb3;
+      const contract = await this.instantiateTicketContract(web3);
       const sender = await getSenderAccount(web3);
 
-      console.log(sender)
+      console.log(sender);
 
-      // const contract = await this.instantiateTicketContract(web3, sender, 10, 1000, sender);
-
-      // console.log(`Contract address: ${contract.account}`)
 
       const self = this;
       const updateLogs = (error, logs) => {
         self.setState({
           logs: self.state.logs.concat([logs])
         })
-        // self.refreshContractData();
+        self.refreshContractData();
       };
 
-      // const filter = contract.Updated({}, {fromBlock: 0, toBlock: 'latest'});
-      // filter.watch(updateLogs);
+      const filter = contract.LogPurchase({}, {fromBlock: 0, toBlock: 'latest'});
+      filter.watch(updateLogs);
       this.setState({
-        // contract,
+        contract,
         web3,
         sender
       });
-      // this.refreshContractData();
+      console.log('soy el padre y mi estate es', this.state.sender);
+      this.refreshContractData();
     }
     console.log('Calling initialize');
     initialize().catch(err => {
@@ -76,17 +93,19 @@ class App extends Component {
     });
   }
 
-  async instantiateTicketContract(web3, ownerAddress, maxCap, price, walletAddress) {
-    console.log(`Creating contract with params: ${ownerAddress} ${maxCap} ${price} ${walletAddress}`);
+  async instantiateTicketContract(web3) {
+    console.log('Initializing contract');
     const contract = require('truffle-contract');
     const ticket = contract(Ticket);
     ticket.setProvider(web3.currentProvider);
-    const ticketInstance = await ticket.new([maxCap, price, walletAddress], { from: ownerAddress, gas: 2000000 });
+    const ticketInstance = await ticket.deployed();
+    console.log(`Contract at: ${ticketInstance.address}`);
     return ticketInstance;
   }
 
   render() {
-    const { web3, sender } = this.state;
+    const { contract, web3, sender } = this.state;
+    console.log("el sender es", sender)
 
     return (
       <div className="App">
@@ -100,7 +119,7 @@ class App extends Component {
               <h1>TicketChain</h1>
               <p>Sell your event's tickets on the blockchain</p>
               <CreateEvent web3={web3} />
-              <BuyTicket web3={web3} sender={sender} />
+              <BuyTicket web3={web3} sender={sender} contract={contract}/>
             </div>
           </div>
         </main>
