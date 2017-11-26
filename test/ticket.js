@@ -43,4 +43,20 @@ contract('Ticket', function (accounts) {
         assert.equal(logPurchaseArgs._qtty, amount, `Tickets purchased wasn't ${amount}`);
       });
 
+      it(`Address Balance should change after ticket burn`, async () => {
+        const amount = 1;
+        const initialBalance = await contract.balanceOf.call(beneficiary);
+        console.log(initialBalance);
+        const burnResult = await contract.burn(amount, {from: beneficiary});
+        const newBalance = await contract.balanceOf.call(beneficiary);
+        assert.notEqual(initialBalance.toNumber(), newBalance.toNumber(), 'Balances are not different');
+        assert.equal(newBalance.toNumber(), initialBalance.toNumber() - amount, `New ticket balance wasn't ${initialBalance.toNumber() - amount}`);
+
+        const logs = burnResult.logs;
+        const logBurn = logs[0];
+        assert.lengthOf(logs, 1, "Quantity of events wasn't 1");
+        assert.equal(logBurn.event, "Burn", "Event found wasn't Burn");
+
+      });
+
 });

@@ -25,7 +25,6 @@ class BuyTicket extends Component {
   }
 
   componentWillReceiveProps() {
-    console.log('estas son mis nuevas props', this.props);
     this.setState({
       beneficiary: this.props.sender
     });

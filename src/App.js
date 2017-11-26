@@ -3,6 +3,7 @@ import Ticket from '../build/contracts/Ticket.json';
 import getWeb3 from './utils/getWeb3';
 import BuyTicket from './components/BuyTicket';
 import CreateEvent from './components/CreateEvent';
+import BurnTicket from './components/BurnTicket';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -22,12 +23,12 @@ class App extends Component {
   }
 
   async getContractData(ticketInstance) {
-    const soldTickets = await ticketInstance.soldTickets();
+    const totalSupply = await ticketInstance.totalSupply();
     const eventMaxCap = await ticketInstance.EVENT_MAX_CAP();
     const ticketPrice = await ticketInstance.price();
-    console.log(`soldTickets: ${soldTickets}, eventMaxCap: ${eventMaxCap}, ticketPrice: ${ticketPrice}`);
+    console.log(`totalSupply: ${totalSupply}, eventMaxCap: ${eventMaxCap}, ticketPrice: ${ticketPrice}`);
     return {
-      soldTickets,
+      totalSupply,
       eventMaxCap,
       ticketPrice
     }
@@ -63,6 +64,7 @@ class App extends Component {
       console.log('Start initialize');
 
       const { web3 } = await getWeb3;
+      console.log('web3', web3);
       const contract = await this.instantiateTicketContract(web3);
       const sender = await getSenderAccount(web3);
 
@@ -84,7 +86,6 @@ class App extends Component {
         web3,
         sender
       });
-      console.log('soy el padre y mi estate es', this.state.sender);
       this.refreshContractData();
     }
     console.log('Calling initialize');
@@ -105,7 +106,6 @@ class App extends Component {
 
   render() {
     const { contract, web3, sender } = this.state;
-    console.log("el sender es", sender)
 
     return (
       <div className="App">
@@ -120,6 +120,7 @@ class App extends Component {
               <p>Sell your event's tickets on the blockchain</p>
               <CreateEvent web3={web3} />
               <BuyTicket web3={web3} sender={sender} contract={contract}/>
+              <BurnTicket web3={web3} sender={sender} contract={contract}/>
             </div>
           </div>
         </main>

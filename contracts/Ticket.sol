@@ -5,7 +5,6 @@ import 'zeppelin-solidity/contracts/token/BurnableToken.sol';
 contract Ticket is BurnableToken {
 
 	// mapping (address => uint) ticketRecordBook; I used 'balances' because function burn() in BurnableToken use that mapping
-  uint public soldTickets;
   uint public EVENT_MAX_CAP;
 	uint256 public price;
 	// address where funds are collected
@@ -38,7 +37,7 @@ contract Ticket is BurnableToken {
 		if (beneficiary == address(0))
 		  return false;
 		Logger(2);
-    if (soldTickets + amount > EVENT_MAX_CAP)
+    if (totalSupply + amount > EVENT_MAX_CAP)
 			return false; 
 		Logger(3);
 		uint256 weiAmount = msg.value;
@@ -49,7 +48,7 @@ contract Ticket is BurnableToken {
 		Logger(5);
 
 		balances[beneficiary] = balances[beneficiary].add(amount);
-		soldTickets += amount;
+		totalSupply += amount;
 
     LogPurchase(msg.sender, beneficiary, amount);
 
