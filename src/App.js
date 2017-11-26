@@ -21,6 +21,15 @@ class App extends Component {
       logs: [],
       web3: null
     }
+
+    this.handleNewEventCreated = this.handleNewEventCreated.bind(this);
+  }
+
+  handleNewEventCreated (ticketInstance) {
+    console.log('Ticket instance in App: ', ticketInstance);
+    this.setState({
+      contract: ticketInstance
+    });
   }
 
   async getContractData(ticketInstance) {
@@ -41,6 +50,8 @@ class App extends Component {
       contractData
     })
   }
+
+
 
   componentWillMount() {
     // Get network provider and web3 instance.
@@ -65,7 +76,6 @@ class App extends Component {
       console.log('Start initialize');
 
       const { web3 } = await getWeb3;
-      console.log('web3', web3);
       const contract = await this.instantiateTicketContract(web3);
       const sender = await getSenderAccount(web3);
 
@@ -119,7 +129,7 @@ class App extends Component {
             <div className="pure-u-1-1">
               <h1>TicketChain</h1>
               <p>Sell your event's tickets on the blockchain</p>
-              <CreateEvent web3={web3} />
+              <CreateEvent web3={web3} sender={sender} onEventCreated={this.handleNewEventCreated}/>
               <BuyTicket web3={web3} sender={sender} contract={contract}/>
               <BurnTicket web3={web3} sender={sender} contract={contract}/>
               <TransferTicket web3={web3} sender={sender} contract={contract}/>

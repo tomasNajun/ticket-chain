@@ -24,19 +24,27 @@ class CreateEvent extends Component {
     });
   }
 
+  componentWillReceiveProps() {
+    this.setState({
+      address: this.props.sender
+    });
+  }
+
   async handleSubmit(event) {
     // alert('A name was submitted: ' + this.state.value);
     const { maxCap, price, address } = this.state;
-    await this.instantiateTicketContract(this.props.web3, address, maxCap, price, address);
+    const result = await this.instantiateTicketContract(this.props.web3, address, maxCap, price, address);
+    console.log('Result ', result);
     event.preventDefault();
   }
 
-  async instantiateTicketContract(web3, ownerAddress, maxCap, price, walletAddress) {
-    console.log(`Creating contract with params: ${ownerAddress} ${maxCap} ${price} ${walletAddress}`);
+  instantiateTicketContract(web3, ownerAddress, maxCap, price, walletAddress) {
+    console.log(`Creating contract with params: ${maxCap} ${price} ${walletAddress}`);
     const contract = require('truffle-contract');
     const ticket = contract(Ticket);
     ticket.setProvider(web3.currentProvider);
-    const result = await ticket.new([maxCap, price, walletAddress], { from: ownerAddress, gas: 2000000 });
+    const result = ticket.new([maxCap], [price], [walletAddress], { from: this.props.sender, gas: 2000000 });
+    console.log('instantiate result ', result);
     return result;
   }
 
