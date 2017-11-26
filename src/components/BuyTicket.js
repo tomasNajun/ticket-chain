@@ -24,10 +24,30 @@ class BuyTicket extends Component {
     });
   }
 
+  async getContractData(ticketInstance) {
+    const ticketPrice = await ticketInstance.price.call();
+    const ticketAvailable = await ticketInstance.ticketAvailable.call();
+    return {
+      unitPrice: ticketPrice.toNumber(),
+      ticketAvailable: ticketAvailable.toNumber()
+    };
+  }
   componentWillReceiveProps() {
-    this.setState({
-      beneficiary: this.props.sender
+
+    const initialize = async () => {
+      const ticketInstance = this.props.contract;
+      const contractData = ticketInstance && await this.getContractData(ticketInstance);
+      console.log('contractData: ', contractData);
+      this.setState({
+        beneficiary: this.props.sender,
+        ...contractData
+      });
+    }
+
+    initialize().catch(err => {
+      console.log('Error initializing: ', err)
     });
+
   }
 
   handleSubmit(event) {
@@ -40,11 +60,12 @@ class BuyTicket extends Component {
       }).catch(function (err) {
         console.log(err.message);
       });
-    
+
   }
 
   async buyTicket(ticketInstance, quantity, beneficiary) {
-    const value = 1000 * quantity;
+    const ticketPrice = await ticketInstance.price();
+    const value = ticketPrice.toNumber() * quantity;
     console.log(`Value to pay: ${value}`);
     console.log(`Sender: ${this.props.sender}`);
     return ticketInstance.buyTickets(beneficiary, quantity, { from: this.props.sender, value: value });
@@ -53,13 +74,21 @@ class BuyTicket extends Component {
   render() {
     return (
       <div>
-        <h3>Buy tickets</h3>
+        <h3>Ticket Box</h3>
+        <h4>Ticket Info</h4>
+        <div>
+          <label htmlFor="unitPrice">Price</label>
+          <input id="unitPrice" name="unitPrice" type="number" value={this.state.unitPrice} readOnly />
+          <label htmlFor="ticketAvailable">Tickets available</label>
+          <input id="ticketAvailable" name="ticketAvailable" type="number" value={this.state.ticketAvailable} readOnly />
+        </div>
+        <h4>Buy tickets</h4>
         <form>
-          <label htmlFor="quantity">Quantity</label>
-          <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
           <label htmlFor="beneficiary">Beneficiary</label>
           <input id="beneficiary" name="beneficiary" type="text" value={this.state.beneficiary} onChange={this.handleInputChange} />
-          <input type="button" value="Crear" onClick={this.handleSubmit} />
+          <label htmlFor="quantity">Quantity</label>
+          <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
+          <input type="button" value="Buy" onClick={this.handleSubmit} />
         </form>
       </div>
     );

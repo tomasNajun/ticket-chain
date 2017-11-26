@@ -18,7 +18,7 @@ contract('Ticket', function (accounts) {
         assert.equal(contractMaxCap, maxCap, `The maxCap val wasn't ${maxCap}`);
         assert.equal(contractPrice, price, `The price val wasn't ${price}`);
         assert.equal(contractWallet, wallet, `The wallet address val wasn't ${wallet}`);
-      });
+    });
 
       it(`Address Balance should change after ticket purchase`, async () => {
         const amount = 2;
@@ -57,6 +57,19 @@ contract('Ticket', function (accounts) {
         assert.lengthOf(logs, 1, "Quantity of events wasn't 1");
         assert.equal(logBurn.event, "Burn", "Event found wasn't Burn");
 
+      });
+
+      it('tickets available should change after buy ticket', async () => {
+        const amount = 2;
+        const eventMaxCap = await contract.EVENT_MAX_CAP.call();
+        const totalSupply = await contract.totalSupply.call();
+        const initialticketAvailable = eventMaxCap.toNumber() - totalSupply.toNumber();
+        const buyTicketResult = await contract.buyTickets(beneficiary, amount, {from: beneficiary, value: amount * price});
+        const newTicketAvailable = initialticketAvailable - amount;
+        
+        const contractTicketAvailable = await contract.ticketAvailable.call();
+
+        assert.equal(contractTicketAvailable.toNumber(), newTicketAvailable, `Tickets availabe wasn't ${newTicketAvailable}`);
       });
 
 });

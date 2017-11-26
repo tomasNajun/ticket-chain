@@ -58,7 +58,7 @@ class BurnTicket extends Component {
           <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
           <label htmlFor="owner">Owner</label>
           <input id="owner" name="owner" type="text" value={this.state.owner} onChange={this.handleInputChange} />
-          <input type="button" value="Crear" onClick={this.handleSubmit} />
+          <input type="button" value="Burn" onClick={this.handleSubmit} />
         </form>
       </div>
     );

@@ -51,7 +51,7 @@ class CreateEvent extends Component {
           <input id="price" name="price" type="number" value={this.state.price} onChange={this.handleInputChange} />
           <label htmlFor="address">Fund wallet address</label>
           <input id="address" name="address" type="text" value={this.state.address} onChange={this.handleInputChange} />
-          <input type="button" value="Crear" onClick={this.handleSubmit} />
+          <input type="button" value="Create" onClick={this.handleSubmit} />
         </form>
       </div>
     );

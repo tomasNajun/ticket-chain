@@ -63,6 +63,9 @@ contract Ticket is BurnableToken {
 		return true;
   }
 
+	function ticketAvailable() public constant returns (uint256 ticketAvailable) {
+		return EVENT_MAX_CAP.sub(totalSupply);
+	}
 	// This method exixts in BasicToken
 	// function sendTicket(address receiver, uint amount) public returns(bool sufficient) {
 	// 	if (ticketRecordBook[msg.sender] < amount)
