@@ -4,6 +4,7 @@ import getWeb3 from './utils/getWeb3';
 import BuyTicket from './components/BuyTicket';
 import CreateEvent from './components/CreateEvent';
 import BurnTicket from './components/BurnTicket';
+import TransferTicket from './components/TransferTicket';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -121,6 +122,7 @@ class App extends Component {
               <CreateEvent web3={web3} />
               <BuyTicket web3={web3} sender={sender} contract={contract}/>
               <BurnTicket web3={web3} sender={sender} contract={contract}/>
+              <TransferTicket web3={web3} sender={sender} contract={contract}/>
             </div>
           </div>
         </main>

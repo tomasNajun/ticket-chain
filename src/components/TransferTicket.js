@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
 import Ticket from '../../build/contracts/Ticket.json'
 
-class BurnTicket extends Component {
+class TransferTicket extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       quantity: 0,
       unitPrice: 0,
-      owner: "0x0"
+      receiver: "0x0",
+      sender: "0x0"
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -26,50 +27,53 @@ class BurnTicket extends Component {
   }
 
   handleSubmit(event) {
-    const { quantity, owner } = this.state;
-    console.log(`Qty: ${quantity}, owner: ${owner}`);
-    this.burnTicket(this.props.web3, quantity, owner)
+    const { quantity, receiver } = this.state;
+    console.log(`Qty: ${quantity}, receiver: ${receiver}`);
+    this.transferTicket(this.props.web3, quantity, receiver)
       .then(function (result) {
-        console.log("Burned!!", result);
+        console.log("Transfered Successfully!!", result);
         return result;
       }).catch(function (err) {
-        console.log('Se rompió todo!', err, err.message);
+        console.log('Oops, we got an error!', err, err.message);
       });
   }
 
-  async burnTicket(web3, quantity, owner) {
+  async transferTicket(web3, quantity, receiver) {
     const contract = require('truffle-contract');
     const ticket = contract(Ticket);
     ticket.setProvider(web3.currentProvider);
     const ticketInstance = await ticket.deployed();
     console.log(`Contract at: ${ticketInstance.address}`);
-    console.log(`Quantity to burn: ${quantity}`);
-    console.log(`Burner: ${this.state.owner}`);
+    console.log(`Quantity to transfer: ${quantity}`);
+    console.log(`Sender: ${this.props.sender}`);
 
-    return ticketInstance.burn(quantity, { from: this.state.owner });
+    return ticketInstance.transfer(receiver, quantity, { from: this.state.sender });
   }
 
   componentWillReceiveProps() {
     if (this.props.sender) {
       this.setState({
-        owner: this.props.sender
+        sender: this.props.sender
       });
     }
   }
+
   render() {
     return (
       <div>
-        <h3>Burn tickets</h3>
+        <h3>Transfer Tickets</h3>
         <form>
+          <label htmlFor="sender">Sender</label>
+          <input id="sender" name="sender" type="text" value={this.state.sender} onChange={this.handleInputChange} />
           <label htmlFor="quantity">Quantity</label>
           <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
-          <label htmlFor="owner">Owner</label>
-          <input id="owner" name="owner" type="text" value={this.state.owner} onChange={this.handleInputChange} />
-          <input type="button" value="Burn" onClick={this.handleSubmit} />
+          <label htmlFor="receiver">Receiver</label>
+          <input id="receiver" name="receiver" type="text" value={this.state.receiver} onChange={this.handleInputChange} />
+          <input type="button" value="Transfer" onClick={this.handleSubmit} />
         </form>
       </div>
     );
   }
 }
 
-export default BurnTicket;
+export default TransferTicket;
