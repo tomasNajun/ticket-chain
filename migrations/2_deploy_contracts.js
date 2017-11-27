@@ -3,5 +3,5 @@ var Ticket = artifacts.require("./Ticket.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(SimpleStorage);
-  deployer.deploy(Ticket, 10, 1000, "0xf11f54b662390e193f36889e333ee2afef516596");
+  deployer.deploy(Ticket, 10, 1000);
 };
