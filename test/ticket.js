@@ -75,14 +75,14 @@ contract('Ticket', function (accounts) {
         assert.equal(contractTicketAvailable.toNumber(), newTicketAvailable, `Tickets availabe wasn't ${newTicketAvailable}`);
       });
 
-      it('tickets availabele should increase and contract wei balance should decrease after refund', async () => {
+      it('tickets available should increase and contract wei balance should decrease after refund', async () => {
         const amount = 2;
         const initialBalance = await contract.balanceOf.call(beneficiary);
         const initialContractWeiBalance = await web3.eth.getBalance(contract.address);
         const initialTotalSupply = await contract.totalSupply.call();
         const valueToPay = amount * price;
         const buyTicketResult = await contract.buyTickets(beneficiary, amount, {from: beneficiary, value: valueToPay});
-        await contract.refundTicket(beneficiary, amount);
+        const refund = await contract.refundTicket(beneficiary, amount);
         const newBalance = await contract.balanceOf.call(beneficiary);
         const newContractWeiBalance = await web3.eth.getBalance(contract.address);
         const newWeiBalance = initialContractWeiBalance.toNumber() + valueToPay;
@@ -91,6 +91,18 @@ contract('Ticket', function (accounts) {
         assert.equal(newContractWeiBalance.toNumber(), initialContractWeiBalance, `New ticket balance wasn't ${initialContractWeiBalance}`);
         assert.equal(newTotalSupply.toNumber(), initialTotalSupply.toNumber(), `New total supply wasn't ${initialTotalSupply.toNumber()}`);
         
+        const refundEvent = refund.logs[0];
+        assert.lengthOf(refund.logs, 1, "Quantity of events wasn't 1");
+        assert.equal(refundEvent.event, "Refund", "Event found wasn't Refund");
+
+        const args = refundEvent.args;
+        assert.property(args, '_recipient');
+        assert.property(args, '_amount');
+        assert.property(args, '_valueRefunded');
+        
+        assert.equal(args._recipient, beneficiary, `Recipient wasn't ${beneficiary}`);
+        assert.equal(args._amount, amount, `Amount wasn't ${amount}`);
+        assert.equal(args._valueRefunded, valueToPay, `Value to be refunded wasn't ${valueToPay}`);
         //TODO test logs, and unhappy path
       });
 
