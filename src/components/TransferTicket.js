@@ -62,14 +62,14 @@ class TransferTicket extends Component {
     return (
       <div>
         <h3>Transfer Tickets</h3>
-        <form>
+        <form className="pure-form pure-form-stacked">
           <label htmlFor="sender">Sender</label>
-          <input id="sender" name="sender" type="text" value={this.state.sender} onChange={this.handleInputChange} />
+          <input id="sender" name="sender" type="text" value={this.state.sender} onChange={this.handleInputChange} className="pure-input-1-3"/>
           <label htmlFor="quantity">Quantity</label>
           <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
           <label htmlFor="receiver">Receiver</label>
-          <input id="receiver" name="receiver" type="text" value={this.state.receiver} onChange={this.handleInputChange} />
-          <input type="button" value="Transfer" onClick={this.handleSubmit} />
+          <input id="receiver" name="receiver" type="text" value={this.state.receiver} onChange={this.handleInputChange} className="pure-input-1-3"/>
+          <input type="button" value="Transfer" onClick={this.handleSubmit} className="pure-button pure-button-primary"/>
         </form>
       </div>
     );

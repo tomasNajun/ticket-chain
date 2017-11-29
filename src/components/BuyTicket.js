@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 class BuyTicket extends Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       quantity: 0,
       unitPrice: 0,
@@ -75,19 +75,23 @@ class BuyTicket extends Component {
       <div>
         <h3>Ticket Box</h3>
         <h4>Ticket Info</h4>
-        <div>
-          <label htmlFor="unitPrice">Price</label>
-          <input id="unitPrice" name="unitPrice" type="number" value={this.state.unitPrice} readOnly />
-          <label htmlFor="ticketAvailable">Tickets available</label>
-          <input id="ticketAvailable" name="ticketAvailable" type="number" value={this.state.ticketAvailable} readOnly />
+        <div className="pure-g">
+          <ul>
+            <li>
+              <div className="pure-u-1-1"><b>Price:</b> {this.state.unitPrice} </div>
+            </li>
+            <li>
+              <div className="pure-u-1-1"><b>Tickets available:</b> {this.state.ticketAvailable}</div>
+            </li>
+          </ul>
         </div>
         <h4>Buy tickets</h4>
-        <form>
+        <form className="pure-form pure-form-stacked">
           <label htmlFor="beneficiary">Beneficiary</label>
-          <input id="beneficiary" name="beneficiary" type="text" value={this.state.beneficiary} onChange={this.handleInputChange} />
+          <input id="beneficiary" name="beneficiary" type="text" value={this.state.beneficiary} onChange={this.handleInputChange} className="pure-input-1-3"/>
           <label htmlFor="quantity">Quantity</label>
           <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
-          <input type="button" value="Buy" onClick={this.handleSubmit} />
+          <input type="button" value="Buy" onClick={this.handleSubmit} className="pure-button pure-button-primary"/>
         </form>
       </div>
     );

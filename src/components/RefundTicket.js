@@ -60,12 +60,13 @@ class RefundTicket extends Component {
     return (
       <div>
         <h3>Refund Tickets</h3>
-        <form>
+        <h4>Only by owner</h4>
+        <form className="pure-form pure-form-stacked">
           <label htmlFor="recipient">Recipent</label>
-          <input id="recipient" name="recipient" type="text" value={this.state.recipient} onChange={this.handleInputChange} />
+          <input id="recipient" name="recipient" type="text" value={this.state.recipient} onChange={this.handleInputChange} className="pure-input-1-3"/>
           <label htmlFor="quantity">Quantity</label>
           <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
-          <input type="button" value="Refund" onClick={this.handleSubmit} />
+          <input type="button" value="Refund" onClick={this.handleSubmit} className="pure-button pure-button-primary"/>
         </form>
       </div>
     );

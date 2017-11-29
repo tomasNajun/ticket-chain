@@ -99,7 +99,7 @@ class App extends Component {
           console.log(e.event + ": " + JSON.stringify(e.args))
         }
       });
-      
+
       this.setState({
         contract,
         web3,
@@ -130,7 +130,7 @@ class App extends Component {
     return (
       <div className="App">
         <nav className="navbar pure-menu pure-menu-horizontal">
-          <a href="#" className="pure-menu-heading pure-menu-link">Truffle Box</a>
+          <a href="#" className="pure-menu-heading pure-menu-link">TicketChain</a>
         </nav>
 
         <main className="container">
