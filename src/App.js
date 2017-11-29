@@ -5,6 +5,7 @@ import BuyTicket from './components/BuyTicket';
 import CreateEvent from './components/CreateEvent';
 import BurnTicket from './components/BurnTicket';
 import TransferTicket from './components/TransferTicket';
+import RefundTicket from './components/RefundTicket';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -34,13 +35,12 @@ class App extends Component {
 
   async getContractData(ticketInstance) {
     const totalSupply = await ticketInstance.totalSupply();
-    const eventMaxCap = await ticketInstance.EVENT_MAX_CAP();
     const ticketPrice = await ticketInstance.price();
-    console.log(`totalSupply: ${totalSupply}, eventMaxCap: ${eventMaxCap}, ticketPrice: ${ticketPrice}`);
+    const ticketAvailable = await ticketInstance.ticketAvailable.call();
     return {
-      totalSupply,
-      eventMaxCap,
-      ticketPrice
+      totalSupply: totalSupply.toNumber(),
+      ticketPrice: ticketPrice.toNumber(),
+      ticketAvailable: ticketAvailable.toNumber() 
     }
   }
 
@@ -78,24 +78,33 @@ class App extends Component {
       const { web3 } = await getWeb3;
       const contract = await this.instantiateTicketContract(web3);
       const sender = await getSenderAccount(web3);
-
-      console.log(sender);
-
+      const contractData = await this.getContractData(contract);
 
       const self = this;
       const updateLogs = (error, logs) => {
+        console.log('Event listened');
         self.setState({
           logs: self.state.logs.concat([logs])
         })
         self.refreshContractData();
       };
 
-      const filter = contract.LogPurchase({}, {fromBlock: 0, toBlock: 'latest'});
-      filter.watch(updateLogs);
+      const allEvents = contract.allEvents();
+
+      allEvents.watch(function(err, e) {
+        console.log('allEvents!')
+        if (err) {
+          console.log(err)
+        } else {
+          console.log(e.event + ": " + JSON.stringify(e.args))
+        }
+      });
+      
       this.setState({
         contract,
         web3,
-        sender
+        sender,
+        contractData
       });
       this.refreshContractData();
     }
@@ -116,7 +125,7 @@ class App extends Component {
   }
 
   render() {
-    const { contract, web3, sender } = this.state;
+    const { contract, web3, sender, contractData } = this.state;
 
     return (
       <div className="App">
@@ -130,9 +139,10 @@ class App extends Component {
               <h1>TicketChain</h1>
               <p>Sell your event's tickets on the blockchain</p>
               <CreateEvent web3={web3} sender={sender} onEventCreated={this.handleNewEventCreated}/>
-              <BuyTicket web3={web3} sender={sender} contract={contract}/>
+              <BuyTicket web3={web3} sender={sender} contract={contract} contractData={contractData}/>
               <BurnTicket web3={web3} sender={sender} contract={contract}/>
               <TransferTicket web3={web3} sender={sender} contract={contract}/>
+              <RefundTicket web3={web3} sender={sender} contract={contract}/>
             </div>
           </div>
         </main>

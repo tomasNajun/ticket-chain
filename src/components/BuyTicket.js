@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 class BuyTicket extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props.sender);
+    
     this.state = {
       quantity: 0,
       unitPrice: 0,
@@ -34,19 +34,18 @@ class BuyTicket extends Component {
   }
   componentWillReceiveProps() {
 
-    const initialize = async () => {
-      const ticketInstance = this.props.contract;
-      const contractData = ticketInstance && await this.getContractData(ticketInstance);
-      console.log('contractData: ', contractData);
+    const contractData = this.props.contractData;
+    if (this.props.contractData) {
       this.setState({
-        beneficiary: this.props.sender,
-        ...contractData
+        unitPrice: contractData.ticketPrice,
+        ticketAvailable: contractData.ticketAvailable
       });
     }
-
-    initialize().catch(err => {
-      console.log('Error initializing: ', err)
-    });
+    if (this.props.sender) {
+      this.setState({
+        beneficiary: this.props.sender,
+      });
+    }
 
   }
 
