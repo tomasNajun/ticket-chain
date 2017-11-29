@@ -34,8 +34,8 @@ contract('Ticket', function (accounts) {
     const weiBalance = initialContractWeiBalance.toNumber() + valueToPay;
     assert.equal(newContractWeiBalance.toNumber(), weiBalance, `Contract wei balance wasn't ${weiBalance}`)
     const logs = buyTicketResult.logs;
-    const logPurchase = logs[5];
-    assert.lengthOf(logs, 6, "Quantity of events wasn't 1");
+    const logPurchase = logs[0];
+    assert.lengthOf(logs, 1, "Quantity of events wasn't 1");
     assert.equal(logPurchase.event, "LogPurchase", "Event found wasn't LogPurchase");
 
     const logPurchaseArgs = logPurchase.args;

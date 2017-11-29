@@ -10,15 +10,11 @@ contract Ticket is BurnableToken, Ownable {
 	uint256 public price;
 
 	event LogTicket(uint maxCap, uint256 _price);
-	event Logger(uint description);
 	
 	//Constructor
 	function Ticket(uint maxCap, uint256 _price) {
-		Logger(1);
 		require(maxCap > 0);
-		Logger(2);
 		require(_price > 0);
-		Logger(3);
 		
 		EVENT_MAX_CAP = maxCap;
 		price = _price;
@@ -29,19 +25,11 @@ contract Ticket is BurnableToken, Ownable {
   event LogPurchase(address indexed _from, address indexed beneficiary, uint256 _qtty);
   
 	function buyTickets(address beneficiary, uint256 amount) public payable returns (bool sufficient) {
-		Logger(1);
-		if (beneficiary == address(0))
-		  return false;
-		Logger(2);
-    if (soldTickets + amount > EVENT_MAX_CAP)
-			return false; 
-		Logger(3);
+		require (beneficiary != address(0));
+    require (soldTickets + amount <= EVENT_MAX_CAP);
 		uint256 weiAmount = msg.value;
 		uint256 weiTotal = amount.mul(price);
-		Logger(4);
-		if (weiAmount != weiTotal)
-			return false;
-		Logger(5);
+		require(weiAmount == weiTotal);
 
 		balances[beneficiary] = balances[beneficiary].add(amount);
 		soldTickets += amount;
