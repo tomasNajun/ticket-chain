@@ -63,8 +63,6 @@ class BurnTicket extends Component {
         <form className="pure-form pure-form-stacked">
           <label htmlFor="quantity">Quantity</label>
           <input id="quantity" name="quantity" type="number" value={this.state.quantity} onChange={this.handleInputChange} />
-          <label htmlFor="owner">Owner</label>
-          <input id="owner" name="owner" type="text" value={this.state.owner} onChange={this.handleInputChange} className="pure-input-1-3"/>
           <input type="button" value="Burn" onClick={this.handleSubmit} className="pure-button pure-button-primary"/>
         </form>
       </div>

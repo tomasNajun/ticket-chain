@@ -6,6 +6,7 @@ import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 contract Ticket is BurnableToken, Ownable {
 
   uint public EVENT_MAX_CAP;
+  uint public soldTickets;
 	uint256 public price;
 
 	event LogTicket(uint maxCap, uint256 _price);
@@ -21,6 +22,7 @@ contract Ticket is BurnableToken, Ownable {
 		
 		EVENT_MAX_CAP = maxCap;
 		price = _price;
+		totalSupply = maxCap;
 		LogTicket(maxCap, _price);
 	}
 
@@ -31,7 +33,7 @@ contract Ticket is BurnableToken, Ownable {
 		if (beneficiary == address(0))
 		  return false;
 		Logger(2);
-    if (totalSupply + amount > EVENT_MAX_CAP)
+    if (soldTickets + amount > EVENT_MAX_CAP)
 			return false; 
 		Logger(3);
 		uint256 weiAmount = msg.value;
@@ -42,7 +44,7 @@ contract Ticket is BurnableToken, Ownable {
 		Logger(5);
 
 		balances[beneficiary] = balances[beneficiary].add(amount);
-		totalSupply += amount;
+		soldTickets += amount;
 
     LogPurchase(msg.sender, beneficiary, amount);
 
@@ -50,7 +52,7 @@ contract Ticket is BurnableToken, Ownable {
   }
 
 	function ticketAvailable() public constant returns (uint256 _ticketAvailable) {
-		return EVENT_MAX_CAP.sub(totalSupply);
+		return EVENT_MAX_CAP.sub(soldTickets);
 	}
 
 	event Refund(address _recipient, uint _amount, uint _valueRefunded);
@@ -60,7 +62,7 @@ contract Ticket is BurnableToken, Ownable {
 		uint valueToRefund = amount.mul(price);
 		require(this.balance >= valueToRefund);
 		balances[recipient] = balances[recipient].sub(amount);
-		totalSupply -= amount;
+		soldTickets -= amount;
 		recipient.transfer(valueToRefund);
 		Refund(recipient, amount, valueToRefund);
 		return true;

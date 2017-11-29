@@ -13,8 +13,10 @@ contract('Ticket', function (accounts) {
 
   it('should initialize contract maxCap and price', async () => {
     const contractMaxCap = await contract.EVENT_MAX_CAP();
+    const totalSupply = await contract.totalSupply();
     const contractPrice = await contract.price();
     assert.equal(contractMaxCap, maxCap, `The maxCap val wasn't ${maxCap}`);
+    assert.equal(totalSupply, maxCap, `The maxCap val wasn't ${maxCap}`);
     assert.equal(contractPrice, price, `The price val wasn't ${price}`);
   });
 
@@ -65,8 +67,8 @@ contract('Ticket', function (accounts) {
   it('tickets available should change after bought ticket', async () => {
     const amount = 2;
     const eventMaxCap = await contract.EVENT_MAX_CAP.call();
-    const totalSupply = await contract.totalSupply.call();
-    const initialticketAvailable = eventMaxCap.toNumber() - totalSupply.toNumber();
+    const soldTickets = await contract.soldTickets.call();
+    const initialticketAvailable = eventMaxCap.toNumber() - soldTickets.toNumber();
     const buyTicketResult = await contract.buyTickets(beneficiary, amount, { from: beneficiary, value: amount * price });
     const newTicketAvailable = initialticketAvailable - amount;
 
@@ -79,17 +81,17 @@ contract('Ticket', function (accounts) {
     const amount = 2;
     const initialBalance = await contract.balanceOf.call(beneficiary);
     const initialContractWeiBalance = await web3.eth.getBalance(contract.address);
-    const initialTotalSupply = await contract.totalSupply.call();
+    const initialSoldTickets = await contract.soldTickets.call();
     const valueToPay = amount * price;
     const buyTicketResult = await contract.buyTickets(beneficiary, amount, { from: beneficiary, value: valueToPay });
     const refund = await contract.refundTicket(beneficiary, amount);
     const newBalance = await contract.balanceOf.call(beneficiary);
     const newContractWeiBalance = await web3.eth.getBalance(contract.address);
     const newWeiBalance = initialContractWeiBalance.toNumber() + valueToPay;
-    const newTotalSupply = await contract.totalSupply.call();
+    const newSoldTickets = await contract.soldTickets.call();
     assert.equal(newBalance.toNumber(), initialBalance, `New ticket balance wasn't ${initialBalance}`);
     assert.equal(newContractWeiBalance.toNumber(), initialContractWeiBalance, `New ticket balance wasn't ${initialContractWeiBalance}`);
-    assert.equal(newTotalSupply.toNumber(), initialTotalSupply.toNumber(), `New total supply wasn't ${initialTotalSupply.toNumber()}`);
+    assert.equal(newSoldTickets.toNumber(), initialSoldTickets.toNumber(), `New total supply wasn't ${initialSoldTickets.toNumber()}`);
 
     const refundEvent = refund.logs[0];
     assert.lengthOf(refund.logs, 1, "Quantity of events wasn't 1");
